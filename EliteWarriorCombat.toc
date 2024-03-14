@@ -1,0 +1,9 @@
+## Interface: 11200
+## Title: EliteWarriorCombat |cff7fff7fClassic-WoW|r
+## Notes: TimeToLive
+## SavedVariables: ConsumeList
+## SavedVariablesPerCharacter: ConsumeListChar ZGLootItemList
+## Author: Hobbitt - TurtleWoW
+
+##
+elitewarrior_combat.lua
