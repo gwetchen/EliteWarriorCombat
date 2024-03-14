@@ -25,13 +25,12 @@ if UnitClass("player") == "Warrior" then
     local textTimeTillDeathText = UIParent:CreateFontString(nil,"OVERLAY","GameTooltipText")
     textTimeTillDeathText:SetFont("Fonts\\FRIZQT__.TTF", 13, "OUTLINE, MONOCHROME")
 
-    local textTimeTillDeath = UIParent:CreateFontString(nil,"OVERLAY","GameTooltipText")
-    textTimeTillDeath:SetFont("Fonts\\FRIZQT__.TTF", 99, "OUTLINE, MONOCHROME")
-    local textTimeTillDeathText = UIParent:CreateFontString(nil,"OVERLAY","GameTooltipText")
-    textTimeTillDeathText:SetFont("Fonts\\FRIZQT__.TTF", 13, "OUTLINE, MONOCHROME")
-
     local sunderStackCountText = UIParent:CreateFontString(nil,"OVERLAY","GameTooltipText")
     sunderStackCountText:SetFont("Fonts\\FRIZQT__.TTF", 99, "OUTLINE, MONOCHROME")
+
+    -- Globals Section
+    local timeSinceLastUpdate = 0;
+    local combatStart = GetTime();
 
     local function BSA_Show()
         if (inCombat and not hasBS) then
@@ -63,9 +62,49 @@ if UnitClass("player") == "Warrior" then
         sunderStackCountText:SetText("");
     end
 
-    -- Globals Section
-    local timeSinceLastUpdate = 0;
-    local combatStart = GetTime();
+    function sunderLogic()
+        for i = 1, 40 do
+            local icon, stackCount = UnitDebuff("target", i)
+            if icon == sunderArmor_Texture then
+                sunderStackCount = stackCount;
+                -- Sunder Armor debuff found
+                if sunderStackCount < 5 then
+                    sunderArmor_Show()
+                else
+                    sunderArmor_Hide()
+                end
+                foundSunder = true;
+                break
+            elseif not icon then
+                break
+            end
+        end
+        if (foundSunder == false) then
+            sunderArmor_Show()
+        end
+        foundSunder = false;
+    end
+
+    local function TTLLogic()
+        local maxHP     = UnitHealthMax("target");
+        local targetName = UnitName("target");
+        if targetName == 'Vaelastrasz the Corrupt' then
+            maxHP = UnitHealthMax("target")*0.3;
+        end;
+        local curHP     = UnitHealth("target");
+        local missingHP = maxHP - curHP;
+        local seconds   = timeSinceLastUpdate - combatStart; -- current length of the fight
+        local remainingSeconds = (maxHP/(missingHP/seconds)-seconds)*0.91; -- Should prob make it count the number of warriors in the raid
+        if (remainingSeconds ~= remainingSeconds) then
+            textTimeTillDeath:SetText("-.--")
+        else
+            if (remainingSeconds) then
+                textTimeTillDeath:SetText(string.format("%.2f",remainingSeconds));
+            end
+        end
+    end
+
+
     function onUpdate(sinceLastUpdate)
         timeSinceLastUpdate = GetTime();
 
@@ -93,62 +132,14 @@ if UnitClass("player") == "Warrior" then
                     if (lastCheckTime == 0) then
                         lastCheckTime = GetTime();
                     end
-                    local target = "target"
-                    for i = 1, 40 do
-                        local icon, stackCount = UnitDebuff(target, i)
-                        if icon == sunderArmor_Texture then
-                            sunderStackCount = stackCount;
-                            -- Sunder Armor debuff found
-                            if sunderStackCount < 5 then
-                                sunderArmor_Show()
-                            else
-                                sunderArmor_Hide()
-                            end
-                            foundSunder = true;
-                            break
-                        elseif not icon then
-                            break
-                        end
-                    end
-                    if (foundSunder == false) then
-                        sunderArmor_Show()
-                    end
-                    lastCheckTime = 0 -- Reset the timer
-                    foundSunder = false;
-
-                    local maxHP     = UnitHealthMax("target");
-                    local targetName = UnitName("target");
-                    if targetName == 'Vaelastrasz the Corrupt' then
-                        maxHP = UnitHealthMax("target")*0.3;
-                    end;
-                    local curHP     = UnitHealth("target");
-                    local missingHP = maxHP - curHP;
-                    local seconds   = timeSinceLastUpdate - combatStart; -- current length of the fight
-                    local remainingSeconds = (maxHP/(missingHP/seconds)-seconds)*0.91; -- Should prob make it count the number of warriors in the raid
-                    if (remainingSeconds ~= remainingSeconds) then
-                        textTimeTillDeath:SetText("-.--")
-                    else
-                        if (remainingSeconds) then
-                            textTimeTillDeath:SetText(string.format("%.2f",remainingSeconds));
-                        end
-                    end
+                    sunderLogic();
+                    TTLLogic();
                 end
             end
+            lastCheckTime = 0 -- Reset the timer
         end
     end
     EliteWarrior.BSA:SetScript("OnUpdate", function(self) if inCombat then onUpdate(timeSinceLastUpdate); end; end);
-
-    function hasItem(itemName)
-        for bag = 0, 4, 1 do
-            for slot = 1, GetContainerNumSlots(bag), 1 do
-                local name = GetContainerItemLink(bag,slot);
-                if name and string.find(name,itemName) then
-                    return true;
-                end;
-            end;
-        end;
-        return false;
-    end
 
     -- When the frame is shown, reset the update timer
     EliteWarrior.BSA:SetScript("OnShow", function(self)
@@ -182,6 +173,7 @@ if UnitClass("player") == "Warrior" then
             end
         elseif event == "PLAYER_LOGIN" then
             BSA_Hide();
+            sunderArmor_Hide()
 
             for n = 1, 40 do
                 local texture = UnitBuff("player", n);
@@ -195,7 +187,6 @@ if UnitClass("player") == "Warrior" then
             BSA_Hide();
         end
     end);
-    EliteWarrior.BSA:RegisterEvent("UNIT_AURA")
     EliteWarrior.BSA:RegisterEvent("PLAYER_REGEN_ENABLED");
     EliteWarrior.BSA:RegisterEvent("PLAYER_REGEN_DISABLED");
     EliteWarrior.BSA:RegisterEvent("CHAT_MSG_SPELL_AURA_GONE_SELF");
