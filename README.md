@@ -7,14 +7,14 @@ Features:
   Battle Shout Reminder
   Sunder Reminder
 
+  Deathwish, Mighty Rage Potion, Trinket Reminder for bosses
+
 TODO:
 
   Reminder to use:
   
     Trinkets, Swap trinkets
-    deathwish
     Recklessness
-    Mighty Rage Potion
-    Cooldowns for each
+    Check to see if Deathwish/Potion/trinkets are on cooldown
 
   Lexing (So more than enUS clients can use this)
