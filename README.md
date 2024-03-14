@@ -5,6 +5,7 @@ Features:
 
   Time Till Death
   Battle Shout Reminder
+  Sunder Reminder
 
 TODO:
 
