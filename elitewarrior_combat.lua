@@ -150,7 +150,7 @@ if UnitClass("player") == "Warrior" then
 
     function rememberToX()
         if (inCombat and remainingSeconds) then
-            --if (UnitLevel("target") == -1) then
+            if (UnitLevel("target") == -1) then
                 if remainingSeconds <= 32 and remainingSeconds >= 27 then
                     deathWishIcon:Show();
                 else
@@ -202,7 +202,7 @@ if UnitClass("player") == "Warrior" then
                         end
                     end
                 end
-            --end
+            end
         end
     end
 
