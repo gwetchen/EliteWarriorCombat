@@ -20,8 +20,8 @@ if UnitClass("player") == "Warrior" then
     local remainingSeconds = 0;
 
     local battleShoutIcon = UIParent:CreateTexture(nil,"BACKGROUND",nil,-8)
-    battleShoutIcon:SetWidth(120)
-    battleShoutIcon:SetHeight(120)
+    battleShoutIcon:SetWidth(90)
+    battleShoutIcon:SetHeight(90)
     battleShoutIcon:SetTexture(BSA_Texture)
     battleShoutIcon:SetPoint("BOTTOMLEFT", math.floor(GetScreenWidth()*.6), math.floor(GetScreenHeight()*.91))
 
@@ -51,13 +51,47 @@ if UnitClass("player") == "Warrior" then
     trinketIcon:SetTexture(mightyRage_Texture)
 
 
-    local textTimeTillDeath = UIParent:CreateFontString(nil,"OVERLAY","GameTooltipText")
+    local ttdFrame = CreateFrame("Frame")
+    ttdFrame:SetFrameStrata("HIGH")
+    ttdFrame:SetWidth(100)
+    ttdFrame:SetHeight(50)
+    ttdFrame:SetPoint("CENTER", UIParent, "CENTER")
+    ttdFrame:SetPoint("BOTTOMLEFT", math.floor(GetScreenWidth()*.465), math.floor(GetScreenHeight()*.11));
+    ttdFrame:Show()
+    ttdFrame:SetMovable(true)
+    ttdFrame:EnableMouse(true)
+    --ttdFrame:SetBackdrop({
+    --    bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+    --    edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+    --    edgeSize = 16,
+    --    insets = { left = 4, right = 4, top = 4, bottom = 4 },
+    --})
+
+    local textTimeTillDeath = ttdFrame:CreateFontString(nil, "OVERLAY", "GameTooltipText")
     textTimeTillDeath:SetFont("Fonts\\FRIZQT__.TTF", 99, "OUTLINE, MONOCHROME")
-    local textTimeTillDeathText = UIParent:CreateFontString(nil,"OVERLAY","GameTooltipText")
+    textTimeTillDeath:SetPoint("CENTER", 0, -20)
+
+    local textTimeTillDeathText = ttdFrame:CreateFontString(nil, "OVERLAY", "GameTooltipText")
     textTimeTillDeathText:SetFont("Fonts\\FRIZQT__.TTF", 13, "OUTLINE, MONOCHROME")
+    textTimeTillDeathText:SetPoint("CENTER", 0, 0)
 
     local sunderStackCountText = UIParent:CreateFontString(nil,"OVERLAY","GameTooltipText")
     sunderStackCountText:SetFont("Fonts\\FRIZQT__.TTF", 99, "OUTLINE, MONOCHROME")
+
+
+
+
+    ttdFrame:SetScript("OnMouseDown", function(self, button)
+        if IsShiftKeyDown() then
+            ttdFrame:StartMoving()
+        end
+    end)
+
+    ttdFrame:SetScript("OnMouseUp", function(self, button)
+        --if button == "LeftButton" then
+            ttdFrame:StopMovingOrSizing()
+        --end
+    end)
 
     -- Globals Section
     local timeSinceLastUpdate = 0;
@@ -66,16 +100,12 @@ if UnitClass("player") == "Warrior" then
     local function BSA_Show()
         if (inCombat and not hasBS) then
             battleShoutIcon:Show();
-            textTimeTillDeath:SetPoint("BOTTOMLEFT", math.floor(GetScreenWidth()*.475), math.floor(GetScreenHeight()*.11));
             textTimeTillDeathText:SetText("Time Till Death:");
-            local point, relativeTo, relativePoint, xOfs, yOfs = textTimeTillDeath:GetPoint();
-            textTimeTillDeathText:SetPoint("BOTTOMLEFT", xOfs, yOfs+28);
         end
     end
 
     local function BSA_Hide()
         battleShoutIcon:Hide();
-        --textTimeTillDeath:SetPoint("TOPLEFT", -100, 100)
         textTimeTillDeath:SetText("-.--");
     end
 
