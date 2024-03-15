@@ -1,6 +1,9 @@
 if UnitClass("player") == "Warrior" then
     local lastCheckTime = 0;
     local checkInterval = 0.2;
+    if not EliteWarrior then
+        EliteWarrior = {};
+    end;
     EliteWarrior.BSA = CreateFrame("Frame", nil, UIParent);
     local BSA_Texture = "Interface\\Icons\\Ability_Warrior_BattleShout";
     local sunderArmor_Texture = "Interface\\Icons\\Ability_Warrior_Sunder";
