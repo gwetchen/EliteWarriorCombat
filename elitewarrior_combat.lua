@@ -7,6 +7,7 @@ if UnitClass("player") == "Warrior" then
     EliteWarrior.BSA = CreateFrame("Frame", nil, UIParent);
     local BSA_Texture = "Interface\\Icons\\Ability_Warrior_BattleShout";
     local sunderArmor_Texture = "Interface\\Icons\\Ability_Warrior_Sunder";
+    local improvedExposeArmor_Texture = "Interface\\Icons\\Ability_Warrior_Riposte"
     local mightyRage_Texture = "Interface\\Icons\\INV_Potion_41";
     local deathWish_Texture = "Interface\\Icons\\Spell_Shadow_DeathPact";
 
@@ -14,6 +15,7 @@ if UnitClass("player") == "Warrior" then
     local hasBS = false;
     local inCombat = false;
     local foundSunder = false;
+    local foundImprovedExposeArmor = false
     local sunderStackCount = 0;
     local remainingSeconds = 0;
 
@@ -24,8 +26,8 @@ if UnitClass("player") == "Warrior" then
     battleShoutIcon:SetPoint("BOTTOMLEFT", math.floor(GetScreenWidth()*.6), math.floor(GetScreenHeight()*.91))
 
     local sunderArmorIcon = UIParent:CreateTexture(nil,"BACKGROUND",nil,-8)
-    sunderArmorIcon:SetWidth(120)
-    sunderArmorIcon:SetHeight(120)
+    sunderArmorIcon:SetWidth(60)
+    sunderArmorIcon:SetHeight(60)
     sunderArmorIcon:SetTexture(sunderArmor_Texture)
     sunderArmorIcon:SetPoint("BOTTOMLEFT", math.floor(GetScreenWidth()*.51), math.floor(GetScreenHeight()*.91))
 
@@ -82,7 +84,7 @@ if UnitClass("player") == "Warrior" then
             sunderArmorIcon:Show()
             sunderStackCountText:SetText(sunderStackCount);
             local point, relativeTo, relativePoint, xOfs, yOfs = sunderArmorIcon:GetPoint()
-            sunderStackCountText:SetPoint("BOTTOMLEFT", xOfs+54, yOfs+52)
+            sunderStackCountText:SetPoint("BOTTOMLEFT", xOfs+22, yOfs+16)
         end
     end
 
@@ -99,22 +101,26 @@ if UnitClass("player") == "Warrior" then
                 sunderStackCount = 0;
                 if icon == sunderArmor_Texture then
                     sunderStackCount = stackCount;
-                    -- Sunder Armor debuff found
-                    if sunderStackCount < 5 then
-                        sunderArmor_Show()
-                    else
-                        sunderArmor_Hide()
-                    end
                     foundSunder = true;
+                    break
+                elseif icon == improvedExposeArmor_Texture then
+                    foundImprovedExposeArmor = true
                     break
                 elseif not icon then
                     break
                 end
             end
-            if (foundSunder == false) then
+            if foundImprovedExposeArmor then
+                sunderArmor_Hide()
+            elseif foundSunder and sunderStackCount < 5 then
+                sunderArmor_Show()
+            elseif foundSunder and sunderStackCount == 5 then
+                sunderArmor_Hide()
+            else
                 sunderArmor_Show()
             end
             foundSunder = false;
+            foundImprovedExposeArmor = false;
         else
             sunderArmor_Hide()
         end
@@ -123,6 +129,7 @@ if UnitClass("player") == "Warrior" then
     -- TTD stands for Time Till Death
     local function TTDLogic()
         if UnitIsEnemy("player","target") or UnitReaction("player","target") == 4 then
+            local targetName = UnitName("target");
             local EHealthPercent = UnitHealth("target")/UnitHealthMax("target")*100;
             if EHealthPercent == 100 then
                 if targetName ~= 'Spore' and targetName ~= 'Fallout Slime' and targetName ~= 'Plagued Champion' then
@@ -132,7 +139,6 @@ if UnitClass("player") == "Warrior" then
             end;
             if EHealthPercent then
                 local maxHP     = UnitHealthMax("target");
-                local targetName = UnitName("target");
                 if targetName == 'Vaelastrasz the Corrupt' then
                     maxHP = UnitHealthMax("target")*0.3;
                 end;
