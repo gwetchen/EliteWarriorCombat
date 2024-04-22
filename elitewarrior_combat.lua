@@ -297,7 +297,7 @@ if UnitClass("player") == "Warrior" then
             textTimeTillDeathText:SetText("");
         elseif event == "CHAT_MSG_SPELL_PERIODIC_SELF_BUFFS" then
             local playerName = UnitName("player");
-            if arg1 == "You gain Battle Shout." or arg1 == playerName.." gains Battle Shout (1)." then
+            if arg1 == "You gain Battle Shout." or arg1 == playerName.." gains Battle Shout (1)." or arg1 == "You gain Battle Shout (1)." then
                 hasBS = true;
                 BSTimer = GetTime();
                 BSA_Hide();
